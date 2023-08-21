@@ -1,0 +1,26 @@
+For v0.1 of cl.m
+Aim: 
+    To create a class (that will be) representing a NACA profile
+Background: 
+    A NACA airfoil is a series of standardised 
+    airfoil (or wing cross-sections), developed by the agency now
+    known as NASA. The parameters inside a 4-digit NACA code can be used 
+    to parametrically define the equation for the cross section.
+    See: https://en.wikipedia.org/wiki/NACA_airfoil
+
+    This version will not use an actual NACA aerfoil, but instead
+    demonstrate plotting a quadratic curve.
+Input:
+    None from the console, but the x-positions ate [0:0.1:1]
+Expected Output:
+    A plot of the equations y = x^2 and y = -x^2 from 0 to 1
+    Where x = [0:0.1:1]
+    Upper Surface: 0.00 0.01 0.04 0.09 0.16 0.25 0.36 0.49 0.64 0.81 1.00
+    Lower Surface: -0.00 -0.01 -0.04 -0.09 -0.16 -0.25 -0.36 -0.49 -0.64 -0.81 -1.00
+Actual Output:
+>> cl
+This is the command line interface for yFoil
+0.00 0.01 0.04 0.09 0.16 0.25 0.36 0.49 0.64 0.81 1.00 
+-0.00 -0.01 -0.04 -0.09 -0.16 -0.25 -0.36 -0.49 -0.64 -0.81 -1.00
+>>
+    Also created correct plot, see TestingPlots/t1.fig
