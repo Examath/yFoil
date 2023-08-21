@@ -1,26 +1,79 @@
-For v0.1 of cl.m
+For v0.2 of cl.m
 Aim: 
-    To create a class (that will be) representing a NACA profile
+    To create a class that generates a NACA profile with both
+    upper and lower surfaces
 Background: 
     A NACA airfoil is a series of standardised 
     airfoil (or wing cross-sections), developed by the agency now
     known as NASA. The parameters inside a 4-digit NACA code can be used 
     to parametrically define the equation for the cross section.
-    See: https://en.wikipedia.org/wiki/NACA_airfoil
 
-    This version will not use an actual NACA aerfoil, but instead
-    demonstrate plotting a quadratic curve.
+    As described here: https://en.wikipedia.org/wiki/NACA_airfoil
+    A NACA airfoil is specified by four digits:
+     - (1) maximumChamber: maximum chamber as 1/10 fraction of chord
+     - (2) locationChamber: maximum chamber location as 1/10 fraction of chord
+     - (3 and 4) thickness: as 1/100 fraction of chord
+    For example, NACA 2412 is for an aerfoil with a
+    maximum chamber of 0.2, located 0.4 down the profile,
+    with a thickness of 0.12 of the chord.
+
+    the formula for a NACA airfoil consists of two parts,
+    (1) the mean chamber line (or centerline):
+        if (x <= locationChamber)
+            yc = maximumChamber * (2 * locationChamber * x - x ^ 2) / locationChamber ^ 2
+        else
+            yc = maximumChamber * ((1 - 2 * locationChamber) + 2 * locationChamber * x - x ^ 2) / (1 - locationChamber) ^ 2
+    (2) the thickness:
+        yt = thickness * 5 * (0.2969 * sqrt(x) - 0.1260 * x - 0.3516 * x ^ 2 + 0.2843 * x ^ 3 - 0.1015 * x ^ 4)
+    These two components are summed using vector addition to generate
+    the airfoil. The thickness is perpendicular to the chord.
+===========================================================================
+Cases:
 Input:
-    None from the console, but the x-positions ate [0:0.1:1]
+    0015
 Expected Output:
-    A plot of the equations y = x^2 and y = -x^2 from 0 to 1
-    Where x = [0:0.1:1]
-    Upper Surface: 0.00 0.01 0.04 0.09 0.16 0.25 0.36 0.49 0.64 0.81 1.00
-    Lower Surface: -0.00 -0.01 -0.04 -0.09 -0.16 -0.25 -0.36 -0.49 -0.64 -0.81 -1.00
+    A plot of the aerofoil, with 20 points, that matches the 0015
+    Aerofoil on wikipeda: https://commons.wikimedia.org/wiki/File:NACA0015_a.png
+    This airfoil is symmetrical 
+Actual Output:
+    Created correct plot, see TestingPlots/t2a.fig
+
+Input:
+    2412
+Expected Output:
+    A plot of the aerofoil, with 20 points, that matches the 2415
+    Aerofoil on wikipeda: https://commons.wikimedia.org/wiki/File:NACA_2412.png
+Actual Output:
+    Created correct plot, see TestingPlots/t2b.fig
+
+Input:
+    4412
+Expected Output:
+    A plot of the aerofoil, with 20 points, that matches the
+    4412 profile, (see https://www.desmos.com/calculator/goztufvzvk)
+    This profile has a flat lower surface
+Actual Output:
+    Created correct plot, see TestingPlots/t2c.fig
+===========================================================================
+Invalid inputs:
+Input:
+    44
+Expected output:
+    Invalid NACA ...
 Actual Output:
 >> cl
 This is the command line interface for yFoil
-0.00 0.01 0.04 0.09 0.16 0.25 0.36 0.49 0.64 0.81 1.00 
--0.00 -0.01 -0.04 -0.09 -0.16 -0.25 -0.36 -0.49 -0.64 -0.81 -1.00
+Enter 4-digit NACA code: 44
+Invalid NACA specifier. See https://en.wikipedia.org/wiki/NACA_airfoil
 >>
-    Also created correct plot, see TestingPlots/t1.fig
+
+Input:
+    ]k;;'o]l9];l].uilkuy[l]k
+Expected output:
+    Invalid NACA ...
+Actual Output:
+>> cl
+This is the command line interface for yFoil
+Enter 4-digit NACA code: ]k;;'o]l9];l].uilkuy[l]k
+Invalid NACA specifier. See https://en.wikipedia.org/wiki/NACA_airfoil
+>> 
