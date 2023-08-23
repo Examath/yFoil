@@ -41,6 +41,9 @@ classdef NacaProfile
         % A 2 by m matrix that stores the points forming the upper surface 
         % of the profile
         UpperSurface
+        % A 2 by m matrix that stores the points forming the chamber line
+        % of the profile
+        ChamberLine
         % A 2 by m matrix that stores the points forming the lower surface 
         % of the profile
         LowerSurface
@@ -68,28 +71,66 @@ classdef NacaProfile
         end
 
         function obj = ComputeSurface(obj, xPositions)
-            %COMPUTESURFACE Construct and generate an instance of the profile
+            %COMPUTESURFACE Compute the points that make up this surface
 
             % Preallocate matrix for efficiency
             obj.UpperSurface = zeros(2,length(xPositions));
+            obj.ChamberLine = zeros(2,length(xPositions));
             obj.LowerSurface = zeros(2,length(xPositions));
 
             % To generate surface, loop through the provided x-positions
             % and generate respective point on both surfaces:
             for index = 1:length(xPositions)
                 % Get point pair (it is more efficient to simultaneously
-                % compute corresponding upper and lower points
+                % compute corresponding upper, chamber and lower points
                 pointPair = ComputePointPair(obj, xPositions(index));
+
+                % Store points
                 obj.UpperSurface(:, index) = pointPair(:,1);
-                obj.LowerSurface(:, index) = pointPair(:,2);
+                obj.ChamberLine(:, index) = pointPair(:,2);
+                obj.LowerSurface(:, index) = pointPair(:,3);
+            end
+
+            % Left most point must be the origin and first point
+            % of both surfaces
+            
+            % Find left-most point on upper surface
+            leftMostPosition = obj.UpperSurface(1,1);
+            for index = 2:length(xPositions)
+                % If this point is left-er than previous
+                if (obj.UpperSurface(1,index) < leftMostPosition)
+                    leftMostPosition = obj.UpperSurface(1,index);
+                else
+                    leftMostIndex = index - 1;
+                    break;
+                end
+            end
+
+            % If transfering is needed
+            if (leftMostIndex > 1)
+                % Store left most point vector for future reference
+                leadingPoint = obj.UpperSurface(:,leftMostIndex);
+
+                % Transfer upper surface points before and including the
+                % left most point, but not the first point
+                % to the lower surface
+                obj.LowerSurface = [fliplr(obj.UpperSurface(:,2:leftMostIndex)) obj.LowerSurface];
+                % Delete transfered points from the upper surface
+                obj.UpperSurface = obj.UpperSurface(:,leftMostIndex:end);
+
+                % Translate the three surfaces such that the left most
+                % point is at the origin
+                obj.UpperSurface = obj.UpperSurface - leadingPoint;
+                obj.ChamberLine = obj.ChamberLine - leadingPoint;
+                obj.LowerSurface = obj.LowerSurface - leadingPoint;
             end
         end
 
         function pointPair = ComputePointPair(obj, x)
             %COMPUTEPOINTPAIR Gets a pair of points for a position on the
-            % airfoil. This returns a 2x2 matrix, with the first column
-            % being the upper surface point and the second column being the
-            % lower surface point.
+            % airfoil. This returns a 2x3 matrix, with the first column
+            % being the upper surface point, second column being the chamber line
+            % and the second column being the lower surface point.
 
             % Using formulas on https://en.wikipedia.org/wiki/NACA_airfoil
 
@@ -121,11 +162,11 @@ classdef NacaProfile
                 ytcost = yt * cos(theta);
                 ytsint = yt * sin(theta);
 
-                % Return upper and lower point
-                pointPair = [x - ytsint, x + ytsint; yc + ytcost, yc - ytcost];
+                % Return upper, chamber, and lower point
+                pointPair = [x - ytsint, x, x + ytsint; yc + ytcost, yc, yc - ytcost];
 
             else % If the chamber is zero, then use a simplified process
-                pointPair = [x, x; yt, -yt];
+                pointPair = [x, 0, x; yt, 0, -yt];
             end
         end
     end

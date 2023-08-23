@@ -1,4 +1,4 @@
-For v0.2 of cl.m
+For v0.3 of cl.m
 Aim: 
     To create a class that generates a NACA profile with both
     upper and lower surfaces
@@ -8,16 +8,7 @@ Background:
     known as NASA. The parameters inside a 4-digit NACA code can be used 
     to parametrically define the equation for the cross section.
 
-    As described here: https://en.wikipedia.org/wiki/NACA_airfoil
-    A NACA airfoil is specified by four digits:
-     - (1) maximumChamber: maximum chamber as 1/10 fraction of chord
-     - (2) locationChamber: maximum chamber location as 1/10 fraction of chord
-     - (3 and 4) thickness: as 1/100 fraction of chord
-    For example, NACA 2412 is for an aerfoil with a
-    maximum chamber of 0.2, located 0.4 down the profile,
-    with a thickness of 0.12 of the chord.
-
-    the formula for a NACA airfoil consists of two parts,
+    The formula for a NACA airfoil consists of two parts,
     (1) the mean chamber line (or centerline):
         if (x <= locationChamber)
             yc = maximumChamber * (2 * locationChamber * x - x ^ 2) / locationChamber ^ 2
@@ -25,55 +16,50 @@ Background:
             yc = maximumChamber * ((1 - 2 * locationChamber) + 2 * locationChamber * x - x ^ 2) / (1 - locationChamber) ^ 2
     (2) the thickness:
         yt = thickness * 5 * (0.2969 * sqrt(x) - 0.1260 * x - 0.3516 * x ^ 2 + 0.2843 * x ^ 3 - 0.1015 * x ^ 4)
-    These two components are summed using vector addition to generate
-    the airfoil. The thickness is perpendicular to the chord.
+
+    Where the thickness is perpendicular to the chord. This means that some
+    of the points making up the upper surface are infront of the origin.
+    As a 1-d function must be generated, these points must be transfered
+    from the upper to lower surfaces.
+
 ===========================================================================
 Cases:
+In all cases a new yellow chamber line should be visible and elapsed
+time should be printed to console
+
 Input:
     0015
 Expected Output:
-    A plot of the aerofoil, with 20 points, that matches the 0015
-    Aerofoil on wikipeda: https://commons.wikimedia.org/wiki/File:NACA0015_a.png
-    This airfoil is symmetrical 
+    No points transfered. Surface should be symetrical.
 Actual Output:
-    Created correct plot, see TestingPlots/t2a.fig
+    Correct symmetrical NACA 0015 w/o point transfer
+    See TestingPlots/t3a.fig
 
 Input:
-    2412
+    1515
 Expected Output:
-    A plot of the aerofoil, with 20 points, that matches the 2415
-    Aerofoil on wikipeda: https://commons.wikimedia.org/wiki/File:NACA_2412.png
+    No points should be transfered (at resolution used in this test).
 Actual Output:
-    Created correct plot, see TestingPlots/t2b.fig
+    As expected.
+    See TestingPlots/t3b.fig
 
 Input:
-    4412
+    9250
 Expected Output:
-    A plot of the aerofoil, with 20 points, that matches the
-    4412 profile, (see https://www.desmos.com/calculator/goztufvzvk)
-    This profile has a flat lower surface
+    Upper surface and lower surface should both be functions of x, there should
+    be more points on the lower surface, the origin should be the
+    left-most point.
 Actual Output:
-    Created correct plot, see TestingPlots/t2c.fig
-===========================================================================
-Invalid inputs:
-Input:
-    44
-Expected output:
-    Invalid NACA ...
-Actual Output:
->> cl
-This is the command line interface for yFoil
-Enter 4-digit NACA code: 44
-Invalid NACA specifier. See https://en.wikipedia.org/wiki/NACA_airfoil
->>
+    As expected.
+    See TestingPlots/t3c.fig
 
 Input:
-    ]k;;'o]l9];l].uilkuy[l]k
-Expected output:
-    Invalid NACA ...
+    none
+Expected Output:  
+    Default input should be 4412. 
+    Upper surface and lower surface should both be functions of x, there should
+    be slightly more points on the lower surface, the origin should be the
+    left-most point.
 Actual Output:
->> cl
-This is the command line interface for yFoil
-Enter 4-digit NACA code: ]k;;'o]l9];l].uilkuy[l]k
-Invalid NACA specifier. See https://en.wikipedia.org/wiki/NACA_airfoil
->> 
+    As expected.
+    See TestingPlots/t3d.fig
