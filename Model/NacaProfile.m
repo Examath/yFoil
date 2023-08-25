@@ -1,4 +1,4 @@
-classdef NacaProfile
+classdef NacaProfile < Profile
     % NacaProfile Represents a NACA profile
     %   A naca profile is an aerofoil described by three parameters.
     %   See https://en.wikipedia.org/wiki/NACA_airfoil
@@ -8,7 +8,7 @@ classdef NacaProfile
             %GENERATEFROMDIGITS Trys to generate a naca profile from the 4-digit
             %specifier
             %   This attempts to create a NacaProfile instance from
-            %   the 4-digit specifier. success is true if t=it is succesful
+            %   the 4-digit specifier.
             arguments
                 % String containing the 4-digit specifier
                 inputDigits {mustBeTextScalar}
@@ -19,7 +19,7 @@ classdef NacaProfile
                 maximumChamber = str2double(inputDigits(1)) / 100;
                 locationChamber = str2double(inputDigits(2)) / 10;
                 thickness = str2double(inputDigits(3:4)) / 100;
-
+ 
                 % Check if all valid
                 if (~(isnan(maximumChamber) || isnan(locationChamber) || isnan(thickness)))
                     naca = NacaProfile(maximumChamber, locationChamber, thickness);
@@ -38,15 +38,11 @@ classdef NacaProfile
         P
         % Thickness as a fraction of chord
         T
-        % A 2 by m matrix that stores the points forming the upper surface 
-        % of the profile
-        UpperSurface
         % A 2 by m matrix that stores the points forming the chamber line
         % of the profile
         ChamberLine
-        % A 2 by m matrix that stores the points forming the lower surface 
-        % of the profile
-        LowerSurface
+
+        % NacaProfile inherits UpperSurface and LowerSurface from Profile
     end
 
     methods
@@ -70,20 +66,20 @@ classdef NacaProfile
             % TBC
         end
 
-        function obj = ComputeSurface(obj, xPositions)
+        function obj = ComputeSurface(obj, xPositionVector)
             %COMPUTESURFACE Compute the points that make up this surface
 
             % Preallocate matrix for efficiency
-            obj.UpperSurface = zeros(2,length(xPositions));
-            obj.ChamberLine = zeros(2,length(xPositions));
-            obj.LowerSurface = zeros(2,length(xPositions));
+            obj.UpperSurface = zeros(2,length(xPositionVector));
+            obj.ChamberLine = zeros(2,length(xPositionVector));
+            obj.LowerSurface = zeros(2,length(xPositionVector));
 
             % To generate surface, loop through the provided x-positions
             % and generate respective point on both surfaces:
-            for index = 1:length(xPositions)
+            for index = 1:length(xPositionVector)
                 % Get point pair (it is more efficient to simultaneously
                 % compute corresponding upper, chamber and lower points
-                pointPair = ComputePointPair(obj, xPositions(index));
+                pointPair = ComputePointPair(obj, xPositionVector(index));
 
                 % Store points
                 obj.UpperSurface(:, index) = pointPair(:,1);
@@ -96,7 +92,7 @@ classdef NacaProfile
             
             % Find left-most point on upper surface
             leftMostPosition = obj.UpperSurface(1,1);
-            for index = 2:length(xPositions)
+            for index = 2:length(xPositionVector)
                 % If this point is left-er than previous
                 if (obj.UpperSurface(1,index) < leftMostPosition)
                     leftMostPosition = obj.UpperSurface(1,index);
@@ -168,6 +164,10 @@ classdef NacaProfile
             else % If the chamber is zero, then use a simplified process
                 pointPair = [x, 0, x; yt, 0, -yt];
             end
+        end
+
+        function id = GetName(obj)
+            id = sprintf('NACA %d%d%d', obj.M * 100, obj.P * 10, obj.T * 100);
         end
     end
 end

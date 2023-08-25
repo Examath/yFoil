@@ -5,7 +5,9 @@ fprintf("This is the command line interface for yFoil\n");
 
 % Ask for the four digit naca specifier 
 % (see https://en.wikipedia.org/wiki/NACA_airfoil)
-query = input("Enter 4-digit NACA code: ", "s");
+query = input("Enter 4-digit NACA code (Default = 4412): ", "s");
+% To scale the profile, a width parameter is needed in the equation
+chordName = input('Enter chord parameter name to generate equations, or enter to continue: ', 's');
 
 %% Generate NACA Profile
 % Check if query is empty
@@ -21,7 +23,7 @@ end
 tic;
 
 % Create a vector with the independent variable for the naca profile. 
-% This creates a profile with 20 points. The .^ ensures the points are
+% This creates a profile with 20 points. The .^3 ensures the points are
 % concentrated towards the left leading edge of the profile.
 xPointVector = (0:0.05:1).^3;
 
@@ -35,10 +37,17 @@ end
 
 % Compute the surface of the profile with the specified xPositionVector
 % resolution.
-naca = ComputeSurface(naca, xPointVector);
+ComputeSurface(naca, xPointVector);
+fprintf('Generated %s with %d upper and %d lower surface points\n\t', GetName(naca), size(naca.UpperSurface,2), size(naca.LowerSurface,2));
+toc;
 
 %% Generate yFoil
-% TBC
+tic;
+yfoil = YProfile(naca, 0.999);
+fprintf("Generated yFoil:\n");
+fprintf("\tUpper surface [ %s]\n\t\t(r2 = %f)\n", sprintf('%f ', yfoil.UpperCoefficients), yfoil.UpperR2);
+fprintf("\tLower surface [ %s]\n\t\t(r2 = %f)\n\t", sprintf('%f ', yfoil.LowerCoefficients), yfoil.LowerR2);
+toc;
 
 %% Output Preview
 
@@ -57,15 +66,26 @@ ylim([-0.4 0.4]);
 grid on;
 grid minor
 
-% Plot the upper surface, chamber line and lower surface on same figure
-plot(naca.UpperSurface(1,:), naca.UpperSurface(2,:), Color='b', Marker='.');
+% Plot the upper surface, chamber line and lower surface of the NACA profile
+% on same figure
+plot(naca.UpperSurface(1,:), naca.UpperSurface(2,:), Color='m', Marker='.');
 plot(naca.ChamberLine(1,:), naca.ChamberLine(2,:), Color='y');
-plot(naca.LowerSurface(1,:), naca.LowerSurface(2,:), Color='r', Marker='.');
+plot(naca.LowerSurface(1,:), naca.LowerSurface(2,:), Color='m', Marker='.');
+
+% Plot the yFoil
+plot(yfoil.UpperSurface(1,:), yfoil.UpperSurface(2,:), Color='b');
+plot(yfoil.LowerSurface(1,:), yfoil.LowerSurface(2,:), Color='b');
 
 hold off;
 
-%% Output
-% TBC
+%% Output Equation for Autodesk Inventor
 
-% Print measured time taken
-toc;
+% If user equations to be generated
+if (~isempty(chordName))
+    fprintf('\n======================== Equations ========================\n')
+    SRFS =  ['ux';'uy';'lx';'ly'];
+    for n = 1:length(SRFS)
+        fprintf('\t%s\n%s\n', SRFS(n,:), GetEquation(yfoil, SRFS(n,:), chordName));
+    end
+    fprintf('===========================================================\n')
+end
