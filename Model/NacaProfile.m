@@ -8,7 +8,8 @@ classdef NacaProfile < Profile
             %GENERATEFROMDIGITS Trys to generate a naca profile from the 4-digit
             %specifier
             %   This attempts to create a NacaProfile instance from
-            %   the 4-digit specifier.
+            %   the 4-digit specifier and if succesful, computes the
+            %   surface
             arguments
                 % String containing the 4-digit specifier
                 inputDigits {mustBeTextScalar}
@@ -22,7 +23,14 @@ classdef NacaProfile < Profile
  
                 % Check if all valid
                 if (~(isnan(maximumChamber) || isnan(locationChamber) || isnan(thickness)))
+                    % Check if 00xx series
+                    if (maximumChamber == 0)
+                        locationChamber = 0;
+                    end
+                    % Return the object
                     naca = NacaProfile(maximumChamber, locationChamber, thickness);
+                    % Compute the surface points
+                    ComputeSurface(naca);
                     return
                 end
             end
@@ -68,6 +76,10 @@ classdef NacaProfile < Profile
 
         function obj = ComputeSurface(obj, xPositionVector)
             %COMPUTESURFACE Compute the points that make up this surface
+            arguments
+                obj;
+                xPositionVector (1,:) = (0:0.05:1).^3
+            end
 
             % Preallocate matrix for efficiency
             obj.UpperSurface = zeros(2,length(xPositionVector));
@@ -162,7 +174,7 @@ classdef NacaProfile < Profile
                 pointPair = [x - ytsint, x, x + ytsint; yc + ytcost, yc, yc - ytcost];
 
             else % If the chamber is zero, then use a simplified process
-                pointPair = [x, 0, x; yt, 0, -yt];
+                pointPair = [x, x, x; yt, 0, -yt];
             end
         end
 

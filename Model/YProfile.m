@@ -19,6 +19,9 @@ classdef YProfile < Profile
         UpperR2
         % Stores the r2 value for the lower surface
         LowerR2
+        % The minimum quality level (minimum r^2 value) for upper (1) and
+        % lower (2) surfaces
+        MinimumQuality
     end
     
     methods
@@ -30,13 +33,15 @@ classdef YProfile < Profile
             arguments
                 % The profile to use for calculating surfaces
                 profile (1,1) {mustBeA(profile,"NacaProfile")}
-                % The quality level (minimum r^2 value)
-                quality (1,1) = 0.99
+                % The minimum quality level (minimum r^2 value) for upper (1) and
+                % lower (2) surfaces
+                quality (1,2) = [0.9998, 0.99]
             end
-    
+            obj.MinimumQuality = quality;
+
             % For each surface            
-            [obj.UpperCoefficients, obj.UpperR2] = ComputeCoefficients(obj, profile.UpperSurface, 0.9998);
-            [obj.LowerCoefficients, obj.LowerR2] = ComputeCoefficients(obj, profile.LowerSurface, 0.99);
+            [obj.UpperCoefficients, obj.UpperR2] = ComputeCoefficients(obj, profile.UpperSurface, obj.MinimumQuality(1));
+            [obj.LowerCoefficients, obj.LowerR2] = ComputeCoefficients(obj, profile.LowerSurface, obj.MinimumQuality(2));
 
             ComputeSurface(obj);
         end
@@ -75,6 +80,18 @@ classdef YProfile < Profile
             
             % Scale profile by chord
             equation = sprintf('%s * (%s)', chordName, equation);
+        end
+
+        function y = GetUpperSurfaceAt(obj,x)
+            %UPPERSURFACEAT Gets the y-value of the upper surface of the 
+            % airfoil function at a specific point
+            y = ComputeY(obj.UpperCoefficients, x);
+        end
+
+        function y = GetLowerSurfaceAt(obj,x)
+            %UPPERSURFACEAT Gets the y-value of the upper surface of the 
+            % airfoil function at a specific point
+            y = ComputeY(obj.LowerCoefficients, x);
         end
     end
 

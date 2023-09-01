@@ -35,9 +35,8 @@ if (isempty(naca))
     return
 end
 
-% Compute the surface of the profile with the specified xPositionVector
-% resolution.
-ComputeSurface(naca, xPointVector);
+% If not empty, then surface has been computed. 
+% Indicate to user the quality of the surface, and how long it took to calculate:
 fprintf('Generated %s with %d upper and %d lower surface points\n\t', GetName(naca), size(naca.UpperSurface,2), size(naca.LowerSurface,2));
 toc;
 
@@ -59,9 +58,10 @@ hold on;
 
 % Ensure that the plot scale is square (so that there's no distortion)
 daspect([1 1 1]);
-% Set axes limits
+% Set x-axes limit
 xlim([-0.2 1.2]);
-ylim([-0.4 0.4]);
+% Set y-axis limit
+ylim([-ceil((naca.T / 2 + 0.05) * 10) / 10, ceil((naca.M + naca.T / 2 + 0.05) * 10) / 10]);
 % Display grid
 grid on;
 grid minor
