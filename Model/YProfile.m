@@ -7,7 +7,7 @@ classdef YProfile < Profile
 
     properties (Constant = true)
         % The maximum computed degree for the yFoil equation
-        MAXIMUM_DEGREE = 7
+        MAXIMUM_DEGREE = 8
     end
     
     properties
@@ -108,7 +108,7 @@ classdef YProfile < Profile
             % to find the coefficients.
 
             % Let
-            n = 2;                  % Degree of yFoil equation
+            n = 1;                  % Starting Degree of yFoil equation
             m = size(surface, 2);   % Number of points
             r2 = 0;                 % R squared value
             X = surface(1,:)'; % Column vector with values x1, x2, ..., xm

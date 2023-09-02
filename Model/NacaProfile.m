@@ -4,7 +4,7 @@ classdef NacaProfile < Profile
     %   See https://en.wikipedia.org/wiki/NACA_airfoil
 
     methods (Static)
-        function naca = GenerateFromDigits(inputDigits)
+        function naca = GenerateFromDigits(inputDigits, xPositionVector)
             %GENERATEFROMDIGITS Trys to generate a naca profile from the 4-digit
             %specifier
             %   This attempts to create a NacaProfile instance from
@@ -13,6 +13,7 @@ classdef NacaProfile < Profile
             arguments
                 % String containing the 4-digit specifier
                 inputDigits {mustBeTextScalar}
+                xPositionVector (1,:) = (0:0.05:1).^3
             end
 
             % Check if 4 digits
@@ -30,7 +31,7 @@ classdef NacaProfile < Profile
                     % Return the object
                     naca = NacaProfile(maximumChamber, locationChamber, thickness);
                     % Compute the surface points
-                    ComputeSurface(naca);
+                    ComputeSurface(naca, xPositionVector);
                     return
                 end
             end
@@ -115,7 +116,7 @@ classdef NacaProfile < Profile
             end
 
             % If transfering is needed
-            if (leftMostIndex > 1)
+            if (leftMostIndex > 1 || obj.UpperSurface(2,1) ~= 0)
                 % Store left most point vector for future reference
                 leadingPoint = obj.UpperSurface(:,leftMostIndex);
 
@@ -149,14 +150,14 @@ classdef NacaProfile < Profile
             if (obj.M > 0)
 
                 % Compute chamber line
-                if (x <= obj.P)
+                if (x < obj.P)
                     yc = obj.M * (2 * obj.P * x - x ^ 2) / obj.P ^ 2;
                 else
                     yc = obj.M * ((1 - 2 * obj.P) + 2 * obj.P * x - x ^ 2) / (1 - obj.P) ^ 2;
                 end
 
                 % Compute derivative of chamber line
-                if (x <= obj.P)
+                if (x < obj.P)
                     dycdx = 2 * obj.M * (obj.P - x) / obj.P ^ 2;
                 else
                     dycdx = 2 * obj.M * (obj.P - x) / (1 - obj.P) ^ 2;
