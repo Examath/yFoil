@@ -1,5 +1,6 @@
 classdef NacaTest < matlab.unittest.TestCase
     %NACADRIVER Run this test lass to verify function of NacaProfile
+    % From https://au.mathworks.com/help/matlab/matlab_prog/write-simple-test-case-using-classes.html
     properties
         profiles
     end
@@ -47,6 +48,19 @@ classdef NacaTest < matlab.unittest.TestCase
             end
         end
         
+        function GetName(testCase)
+            % Check that GetName and GetDigits works as expected
+            profileSyntaxes = ['0015';'2412';'4510'];
+            for n = 1:length(testCase.profiles)
+                testCase.assertEqual( ...
+                    testCase.profiles(n).GetName(), ...
+                    ['NACA ' profileSyntaxes(n,:)]);
+                testCase.assertEqual( ...
+                    testCase.profiles(n).GetDigits(), ...
+                    profileSyntaxes(n,:));
+            end
+        end
+        
         function ComputePointPairFunction(testCase)
             % Checks whether the compute point pair function
             % works as expected
@@ -69,16 +83,40 @@ classdef NacaTest < matlab.unittest.TestCase
             end
         end
 
+        function ProfileExists(testCase)
+            % Check that upper and lower surfaces exist and are of a valid
+            % size
+
+            for profile = testCase.profiles
+                % Upper surface
+                usSize = size(profile.UpperSurface);
+                testCase.assertEqual(usSize(1),2);
+                testCase.assertGreaterThan(usSize(2),2);   
+                % lower surface
+                lsSize = size(profile.LowerSurface);
+                testCase.assertEqual(lsSize(1),2);
+                testCase.assertGreaterThan(lsSize(2),2);   
+            end
+        end
+
         function ProfileLeadingPoint(testCase)
             % Leading point of all profiles should be zero
             % Check the leading point is at origin
 
             for profile = testCase.profiles
-                usSize = size(profile.UpperSurface);
-                testCase.verifyEqual(usSize(1),2);
-                testCase.verifyGreaterThan(usSize(2),2);
-                testCase.verifyEqual(profile.UpperSurface(:,1),[0;0]);
-                testCase.verifyEqual(profile.LowerSurface(:,1),[0;0]);     
+                % Check that leading point is at origin            
+                testCase.assertEqual(profile.UpperSurface(:,1),[0;0]);
+                testCase.assertEqual(profile.LowerSurface(:,1),[0;0]); 
+                % Check that all points are after the previous point
+                % i.e. that the surface is a function of y (yFoil, get it?)
+                for n = 2:length(profile.UpperSurface)
+                    testCase.assertGreaterThan(profile.UpperSurface(1,n),...
+                        profile.UpperSurface(1,n - 1));
+                end
+                for n = 2:length(profile.LowerSurface)
+                    testCase.assertGreaterThan(profile.LowerSurface(1,n),...
+                        profile.LowerSurface(1,n - 1));
+                end
             end
         end
 

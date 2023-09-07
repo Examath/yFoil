@@ -18,6 +18,7 @@ classdef NacaProfile < Profile
 
             % Check if 4 digits
             if (length(inputDigits) == 4)
+                % Convert from string to integers, and scale appropriatley
                 maximumChamber = str2double(inputDigits(1)) / 100;
                 locationChamber = str2double(inputDigits(2)) / 10;
                 thickness = str2double(inputDigits(3:4)) / 100;
@@ -27,6 +28,10 @@ classdef NacaProfile < Profile
                     % Check if 00xx series
                     if (maximumChamber == 0)
                         locationChamber = 0;
+                    end
+                    % Ensure thickness is not too small
+                    if (thickness < 0.01)
+                        thickness = 0.01;
                     end
                     % Return the object
                     naca = NacaProfile(maximumChamber, locationChamber, thickness);
@@ -70,9 +75,6 @@ classdef NacaProfile < Profile
             this.M = maximumChamber;
             this.P = locationChamber;
             this.T = thickness;
-
-            % Compute surface
-            % TBC
         end
 
         function obj = ComputeSurface(obj, xPositionVector)
@@ -91,10 +93,12 @@ classdef NacaProfile < Profile
             % and generate respective point on both surfaces:
             for index = 1:length(xPositionVector)
                 % Get point pair (it is more efficient to simultaneously
-                % compute corresponding upper, chamber and lower points
+                % compute corresponding upper, chamber and lower points.)
                 pointPair = ComputePointPair(obj, xPositionVector(index));
-
-                % Store points
+                % The first, second and third colums of the 2x3 matrix
+                % returned are the upper, chamber and lower points
+                % respectivley.
+                % Store the points to their respective surfaces:
                 obj.UpperSurface(:, index) = pointPair(:,1);
                 obj.ChamberLine(:, index) = pointPair(:,2);
                 obj.LowerSurface(:, index) = pointPair(:,3);
@@ -118,20 +122,22 @@ classdef NacaProfile < Profile
             % If transfering is needed
             if (leftMostIndex > 1 || obj.UpperSurface(2,1) ~= 0)
                 % Store left most point vector for future reference
-                leadingPoint = obj.UpperSurface(:,leftMostIndex);
+                leadingPointVector = obj.UpperSurface(:,leftMostIndex);
 
                 % Transfer upper surface points before and including the
                 % left most point, but not the first point
                 % to the lower surface
-                obj.LowerSurface = [fliplr(obj.UpperSurface(:,2:leftMostIndex)) obj.LowerSurface];
+                % Flip the upper points with https://au.mathworks.com/help/matlab/ref/fliplr.html
+                obj.LowerSurface = ...
+                    [fliplr(obj.UpperSurface(:,2:leftMostIndex)) obj.LowerSurface];
                 % Delete transfered points from the upper surface
                 obj.UpperSurface = obj.UpperSurface(:,leftMostIndex:end);
 
                 % Translate the three surfaces such that the left most
                 % point is at the origin
-                obj.UpperSurface = obj.UpperSurface - leadingPoint;
-                obj.ChamberLine = obj.ChamberLine - leadingPoint;
-                obj.LowerSurface = obj.LowerSurface - leadingPoint;
+                obj.UpperSurface = obj.UpperSurface - leadingPointVector;
+                obj.ChamberLine = obj.ChamberLine - leadingPointVector;
+                obj.LowerSurface = obj.LowerSurface - leadingPointVector;
             end
         end
 
@@ -180,7 +186,15 @@ classdef NacaProfile < Profile
         end
 
         function id = GetName(obj)
-            id = sprintf('NACA %d%d%d', obj.M * 100, obj.P * 10, obj.T * 100);
+            %GETNAME Gets the name of this profile per the NACA series
+            %definition
+            id = sprintf('NACA %d%d%02d', round(obj.M * 100), round(obj.P * 10), round(obj.T * 100));
+        end
+
+        function id = GetDigits(obj)
+            %GETDIGITS Gets the digits of this profile's definition as a
+            %character array
+            id = sprintf('%d%d%02d', round(obj.M * 100), round(obj.P * 10), round(obj.T * 100));
         end
     end
 end

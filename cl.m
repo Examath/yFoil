@@ -43,13 +43,14 @@ toc;
 %% Generate yFoil
 tic;
 yfoil = YProfile(naca, 0.999);
+% Print some details
 fprintf("Generated yFoil:\n");
-fprintf("\tUpper surface [ %s]\n\t\t(r2 = %f)\n", sprintf('%f ', yfoil.UpperCoefficients), yfoil.UpperR2);
-fprintf("\tLower surface [ %s]\n\t\t(r2 = %f)\n\t", sprintf('%f ', yfoil.LowerCoefficients), yfoil.LowerR2);
+fprintf("\tUpper surface [ %s]\n\t\t(r2 = %f)\n", sprintf('%f ', yfoil.UpperCoefficientsVector), yfoil.UpperR2);
+fprintf("\tLower surface [ %s]\n\t\t(r2 = %f)\n\t", sprintf('%f ', yfoil.LowerCoefficientsVector), yfoil.LowerR2);
 toc;
 
 %% Output Preview
-
+% Based primaraly of documentation: https://au.mathworks.com/help/matlab/ref/plot.html
 % Create a new figure window
 close all;
 f = figure;
@@ -85,7 +86,7 @@ if (~isempty(chordName))
     fprintf('\n======================== Equations ========================\n')
     SRFS =  ['ux';'uy';'lx';'ly'];
     for n = 1:length(SRFS)
-        fprintf('\t%s\n%s\n', SRFS(n,:), GetEquation(yfoil, SRFS(n,:), chordName));
+        fprintf('\t%s\n%s\n', SRFS(n,:), yfoil.GetEquation(SRFS(n,:), chordName));
     end
     fprintf('===========================================================\n')
 end

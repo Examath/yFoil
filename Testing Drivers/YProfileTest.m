@@ -1,4 +1,6 @@
 classdef YProfileTest < matlab.unittest.TestCase
+    %NACADRIVER Run this test lass to verify function of NacaProfile
+    % From https://au.mathworks.com/help/matlab/matlab_prog/write-simple-test-case-using-classes.html
     properties
         nacaProfiles
         profiles
@@ -31,8 +33,8 @@ classdef YProfileTest < matlab.unittest.TestCase
                 testCase.assertInstanceOf(profile, "YProfile");
                 testCase.verifyNotEmpty(profile.UpperSurface);
                 testCase.verifyNotEmpty(profile.LowerSurface);
-                testCase.verifyNotEmpty(profile.UpperCoefficients);
-                testCase.verifyNotEmpty(profile.LowerCoefficients);
+                testCase.verifyNotEmpty(profile.UpperCoefficientsVector);
+                testCase.verifyNotEmpty(profile.LowerCoefficientsVector);
             end
         end
 
@@ -144,7 +146,7 @@ classdef YProfileTest < matlab.unittest.TestCase
                 r2 = 1 - sum((Y - yCalc).^2)/sum((Y - mean(Y)).^2);
 
                 % Check that r@ greater than minimum
-                testCase.verifyGreaterThanOrEqual(r2,testCase.profiles(n).MinimumQuality(1));
+                testCase.verifyGreaterThanOrEqual(r2,testCase.profiles(n).MinimumQualityVector(1));
             end
         end
 
@@ -165,7 +167,7 @@ classdef YProfileTest < matlab.unittest.TestCase
                 r2 = 1 - sum((Y - yCalc).^2)/sum((Y - mean(Y)).^2);
 
                 % Check that r@ greater than minimum
-                testCase.verifyGreaterThanOrEqual(r2,testCase.profiles(n).MinimumQuality(2));
+                testCase.verifyGreaterThanOrEqual(r2,testCase.profiles(n).MinimumQualityVector(2));
             end
         end
 

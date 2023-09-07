@@ -12,16 +12,16 @@ classdef YProfile < Profile
     
     properties
         % Stores the coefficients for the upper yFoil equation
-        UpperCoefficients
+        UpperCoefficientsVector
         % Stores the coefficients for the lower yFoil equation
-        LowerCoefficients
+        LowerCoefficientsVector
         % Stores the r2 value for the upper surface
         UpperR2
         % Stores the r2 value for the lower surface
         LowerR2
         % The minimum quality level (minimum r^2 value) for upper (1) and
         % lower (2) surfaces
-        MinimumQuality
+        MinimumQualityVector
     end
     
     methods
@@ -37,11 +37,11 @@ classdef YProfile < Profile
                 % lower (2) surfaces
                 quality (1,2) = [0.9998, 0.99]
             end
-            obj.MinimumQuality = quality;
+            obj.MinimumQualityVector = quality;
 
-            % For each surface            
-            [obj.UpperCoefficients, obj.UpperR2] = ComputeCoefficients(obj, profile.UpperSurface, obj.MinimumQuality(1));
-            [obj.LowerCoefficients, obj.LowerR2] = ComputeCoefficients(obj, profile.LowerSurface, obj.MinimumQuality(2));
+            % For each surface, compute coefficients
+            [obj.UpperCoefficientsVector, obj.UpperR2] = ComputeCoefficients(obj, profile.UpperSurface, obj.MinimumQualityVector(1));
+            [obj.LowerCoefficientsVector, obj.LowerR2] = ComputeCoefficients(obj, profile.LowerSurface, obj.MinimumQualityVector(2));
 
             ComputeSurface(obj);
         end
@@ -61,9 +61,9 @@ classdef YProfile < Profile
 
                 % Choose surface
                 if (id(1) == 'u')
-                    coefficients = obj.UpperCoefficients;
+                    coefficients = obj.UpperCoefficientsVector;
                 else
-                    coefficients = obj.LowerCoefficients;
+                    coefficients = obj.LowerCoefficientsVector;
                 end
 
                 % Generate first and second terms
@@ -85,18 +85,18 @@ classdef YProfile < Profile
         function y = GetUpperSurfaceAt(obj,x)
             %UPPERSURFACEAT Gets the y-value of the upper surface of the 
             % airfoil function at a specific point
-            y = ComputeY(obj.UpperCoefficients, x);
+            y = ComputeY(obj.UpperCoefficientsVector, x);
         end
 
         function y = GetLowerSurfaceAt(obj,x)
             %UPPERSURFACEAT Gets the y-value of the upper surface of the 
             % airfoil function at a specific point
-            y = ComputeY(obj.LowerCoefficients, x);
+            y = ComputeY(obj.LowerCoefficientsVector, x);
         end
     end
 
     methods (Access = protected)
-        function [coefficients, r2] = ComputeCoefficients(obj, surface, quality)
+        function [coefficientsVector, r2] = ComputeCoefficients(obj, surface, quality)
             %METHOD1 This method computes the yFoil coefficients for a
             %given surface and target quality
             %   This method uses regression to calculate the yFoil
@@ -114,8 +114,8 @@ classdef YProfile < Profile
             X = surface(1,:)'; % Column vector with values x1, x2, ..., xm
             Y = surface(2,:)'; % Column vector with values y1, y2, ..., ym
 
-            % Then Y = [sqrt(X), X, X^2, ..., X^n] * coefficients
-            %      Y = A * coefficients
+            % Then Y = [sqrt(X), X, X^2, ..., X^n] * coefficientsVector
+            %      Y = A * coefficientsVector
 
             % Create first special column of A, and preallocate the rest.
             A = [sqrt(X), zeros(m, obj.MAXIMUM_DEGREE + 1)];
@@ -133,9 +133,9 @@ classdef YProfile < Profile
                 % Find coefficients by solving the linear system to a
                 % specific degree n
                 % using the mldivide operator
-                coefficients = A(:,1:n + 1)\Y;
+                coefficientsVector = A(:,1:n + 1)\Y;
 
-                yCalc = ComputeY(coefficients, X);
+                yCalc = ComputeY(coefficientsVector, X);
 
                 % Find R squared value (using formula at https://au.mathworks.com/help/matlab/data_analysis/linear-regression.html)
                 r2 = 1 - sum((Y - yCalc).^2)/sum((Y - mean(Y)).^2);
@@ -151,8 +151,8 @@ classdef YProfile < Profile
             end
 
             % Generate surface            
-            obj.UpperSurface = [xPositions; ComputeY(obj.UpperCoefficients,xPositions)];
-            obj.LowerSurface = [xPositions; ComputeY(obj.LowerCoefficients,xPositions)];
+            obj.UpperSurface = [xPositions; ComputeY(obj.UpperCoefficientsVector,xPositions)];
+            obj.LowerSurface = [xPositions; ComputeY(obj.LowerCoefficientsVector,xPositions)];
         end
     end
 end
@@ -169,4 +169,3 @@ function y = ComputeY(coefficients, xPositionVecor)
         y = y + coefficients(n) * xPositionVecor.^(n - 1);
     end
 end
-

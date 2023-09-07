@@ -1,4 +1,4 @@
-For v0.6 of yFoil - introducing yFoil.mlapp
+For v1.0 of yFoil - Fix-ups
 Aim: 
     To create an app that generates approximations of NACA Airfoils for
     autodesk inventor
@@ -18,7 +18,7 @@ Background:
 Functionality:    
     First, the functionality of the app omust be checked. Whilst cl.m
     only had two user-entered parameters for the sake of speed,
-    the app exposes all 5 generation properties. The app is designed to
+    the app exposes all 8 generation properties. The app is designed to
     update live, as in when the user changes a parameter, all dependent
     calculations recompute and the plot is automatically re-drawn.
     The list of features is:
@@ -28,14 +28,16 @@ Functionality:
     - Can change the profile (text box labelled 'NACA'): 
         - lamp turns grey when editing, green when succesful.
     - Can change the NACA quality (number of points increases/decreases)
+    - Can change chamber, chamber position and thickness using spinners
     - Can change 'chord parameter name', updates equations
     - Can change yFoil quality(s), regenerates yFoil that meets set qualities
     - Can copy all 4 equations
-    - Plot with Naca points in magenta crosses, Naca chamberline in yellow
+    - Plot with Naca points in magenta crosses, Naca chamberline in green
       and matching yFoil in blue.
-    - At the bottom of the 'Reference' and 'YFoil' panels, label indicating
-      compiutation time in ms
+    - At the bottom of the window, a label indicates
+      computation time in ms
     - Help link redirects to wiki page
+    - Pin window to top checkbox works
     - 'Exalab' logo on bottom-left corner
     This list should also be 
     checked before any future versions of this app are released.
