@@ -6,4 +6,6 @@ This program is designed to meet a unique challenge – adding NACA airfoils to 
 
 To use, may either download the [MATLAB app package](https://github.com/Examath/yFoil/releases/download/v1.0/yFoil.mlappinstall) (this requires MATLAB) or the [standalone desktop installer](https://github.com/Examath/yFoil/releases/download/v1.0/YFoilInstaller.exe).
 
+See the [wiki](https://github.com/Examath/yFoil/wiki) for the user guide and how to use.
+
 Note to accessors, the current commit is slightly ahead of what was submitted. [See the version submitted.](https://github.com/Examath/yFoil/tree/41f3d9cbca8b8d26d36922688ebaa64dc78c8838)
