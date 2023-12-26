@@ -14,8 +14,11 @@ classdef Profile < handle
         % A 2 by m matrix that stores the points forming the lower surface 
         % of the profile
         LowerSurface
+        % A 2 by m matrix that stores the points forming the chamber line
+        % of the profile
+        ChamberLine
     end
 
-    methods
+    methods (Access = protected)
     end
 end

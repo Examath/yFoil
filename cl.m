@@ -22,11 +22,6 @@ end
 % Measure time taken to compute for performance
 tic;
 
-% Create a vector with the independent variable for the naca profile. 
-% This creates a profile with 20 points. The .^3 ensures the points are
-% concentrated towards the left leading edge of the profile.
-xPointVector = (0:0.05:1).^3;
-
 % If an error occures in NacaProfile.GenerateFromDigits(), then the method
 % returns empty. So check if it is empty, print error message 
 % with a helpful link and stop execution.

@@ -32,7 +32,7 @@ classdef YProfile < Profile
             %   profile with a specified quality.
             arguments
                 % The profile to use for calculating surfaces
-                profile (1,1) {mustBeA(profile,"NacaProfile")}
+                profile (1,1) {mustBeA(profile,"Profile")}
                 % The minimum quality level (minimum r^2 value) for upper (1) and
                 % lower (2) surfaces
                 quality (1,2) = [0.9998, 0.99]

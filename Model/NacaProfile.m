@@ -52,9 +52,6 @@ classdef NacaProfile < Profile
         P
         % Thickness as a fraction of chord
         T
-        % A 2 by m matrix that stores the points forming the chamber line
-        % of the profile
-        ChamberLine
 
         % NacaProfile inherits UpperSurface and LowerSurface from Profile
     end
